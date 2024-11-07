@@ -1,0 +1,82 @@
+The provided codes are separate Python scripts used together to create, encrypt, and access a protected folder structure. Here’s an explanation of each script and how they interrelate:
+
+---
+
+### **encrypt.py**
+- **Purpose**: Encrypts a specified file using a generated encryption key.
+
+1. **Key Generation**:
+   - Generates a key using `Fernet.generate_key()`.
+   - Stores the generated key in a file called `filekey.key` for later use.
+
+2. **Encryption**:
+   - Reads the generated key and uses it to create a `Fernet` object.
+   - Reads the specified file (`from_dir`), encrypts its contents, and writes the encrypted data back to the original file.
+
+3. **How It Works with Other Files**:
+   - The key saved in `filekey.key` is essential for decryption in `decrypt.py`.
+
+---
+
+### **decrypt.py**
+- **Purpose**: Decrypts a previously encrypted file using the stored key.
+
+1. **Opening the Key**:
+   - Reads the `filekey.key` to retrieve the encryption key.
+
+2. **Decryption**:
+   - Reads the encrypted file specified by `from_dir`, decrypts it, and writes the decrypted data back to the original file.
+
+3. **Error Handling**:
+   - Handles `FileNotFoundError` if the specified file doesn’t exist and `OSError` for other file-related errors.
+
+4. **How It Works with Other Files**:
+   - Uses the same key created in `encrypt.py` (stored in `filekey.key`) to decrypt the encrypted file.
+
+---
+
+### **write.py**
+- **Purpose**: Creates a complex, password-protected folder structure and moves files into it.
+
+1. **Folder Structure Creation**:
+   - Creates a base folder named by `fname` in the specified directory.
+   - Uses the characters in `pasw` (password input) to create a deeply nested folder structure where each character in the password forms a subdirectory. 
+   - Inside each character folder, it creates 20 folders, each containing 20 additional subfolders, resulting in a large, nested structure.
+
+2. **File Movement**:
+   - Moves files from the specified directory (`from_dir`) into the protected structure (`todir`), excluding hidden files.
+
+3. **How It Works with Other Files**:
+   - `write.py` sets up the directory structure that `read.py` will use to verify the password and retrieve files.
+
+---
+
+### **read.py**
+- **Purpose**: Accesses the protected folder by reconstructing the folder path based on the password used in `write.py`.
+
+1. **Directory Path Reconstruction**:
+   - Takes a password (`pasw`) and reconstructs the final directory path by following the nested folder structure created by `write.py`.
+
+2. **Verification**:
+   - Checks if the reconstructed path exists. If it does, it lists the contents, otherwise, it shows an error indicating an incorrect password or path.
+
+3. **How It Works with Other Files**:
+   - Reads the structure set up by `write.py` and confirms if the input password matches the structure, effectively verifying access.
+
+---
+
+### **Relation Between the Scripts**
+
+The four scripts together create a system for securing files with both encryption and a nested, password-based folder structure:
+
+1. **File Encryption/Decryption**:
+   - `encrypt.py` encrypts the file, and `decrypt.py` decrypts it using the same key. This ensures that files are only readable if decrypted with the correct key.
+
+2. **Folder Structure Creation and Access**:
+   - `write.py` sets up a nested, password-dependent folder structure for further securing files.
+   - `read.py` verifies access by reconstructing the path using the password, adding an extra layer of protection.
+
+3. **Combining Encryption with Folder Protection**:
+   - By encrypting files and then moving them into a password-protected directory structure, this system offers multiple layers of security:
+     - Encryption prevents unauthorized reading of files.
+     - The password-protected structure conceals files within a complex nested folder, only accessible by correctly reconstructing the path based on the password.
